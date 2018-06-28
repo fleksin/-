@@ -1,5 +1,121 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { FormControl, Grid, Row, Col, Jumbotron, Tabs, Tab, Tooltip, OverlayTrigger } from 'react-bootstrap';
+
+const ACCEPT_FEE_UNDER1M = {
+  name: 'ACCEPT_FEE_UNDER1M',
+  overFlowRate: 0.005,
+  model: [
+    {
+      floor: 0,
+      roof: 1000,
+      fixedFee: 100,
+    },
+    {
+      floor: 1000,
+      roof: 50000,
+      rate: 0.05,
+    },
+    {
+      floor: 50000,
+      roof: 100000,
+      rate: 0.04,
+    },
+    {
+      floor: 100000,
+      roof: 200000,
+      rate: 0.03,
+    },
+    {
+      floor: 200000,
+      roof: 500000,
+      rate: 0.02,
+    },
+    {
+      floor: 500000,
+      roof: 1000000,
+      rate: 0.01,
+    },
+  ],
+};
+
+const PROCESS_FEE_UNDER1M = {
+  name: 'PROCESS_FEE_UNDER1M',
+  overFlowRate: 0.001,
+  model: [
+    {
+      floor: 0,
+      roof: 50000,
+      fixedFee: 1000,
+    },
+    {
+      floor: 50000,
+      roof: 200000,
+      rate: 0.015,
+    },
+    {
+      floor: 200000,
+      roof: 500000,
+      rate: 0.0065,
+    },
+    {
+      floor: 500000,
+      roof: 1000000,
+      rate: 0.0035,
+    },
+  ]
+};
+const DISPUTED_FEE_OVER1M = {
+  name: 'DISPUTED_FEE_OVER1M',
+  overFlowRate: 0.005,
+  model: [
+    {
+      floor: 0,
+      roof: 50000,
+      fixedFee: 1050
+    },
+    {
+      floor: 50000,
+      roof: 100000,
+      rate: 0.025
+    },
+    {
+      floor: 100000,
+      roof: 200000,
+      rate: 0.02
+    },
+    {
+      floor: 200000,
+      roof: 500000,
+      rate: 0.015
+    },
+    {
+      floor: 500000,
+      roof: 1000000,
+      rate: 0.01
+    },
+    {
+      floor: 1000000,
+      roof: 2000000,
+      rate: 0.009
+    },
+    {
+      floor: 2000000,
+      roof: 5000000,
+      rate: 0.008
+    },
+    {
+      floor: 5000000,
+      roof: 7650000,
+      rate: 0.007
+    },
+    {
+      floor: 7650000,
+      roof: 20000000,
+      rate: 0.0058
+    },
+  ]
+};
 
 export default class Login extends Component {
   static propTypes = {
@@ -7,7 +123,13 @@ export default class Login extends Component {
   };
 
   state = {
-    username: ''
+    username: '',
+    number: '',
+    tabKey: 1,
+    acceptFeeUnder1m: null,
+    processFeeUnder1m: null,
+    chargeFeeOver1m: null,
+    formula: {},
   };
 
   handleLogin = () => {
@@ -18,18 +140,162 @@ export default class Login extends Component {
   }
 
   handleChange = (e) => {
+    const number = e.target.value;
+    const { fee: acceptFeeUnder1m, formulaArr: formula1 } = this.calculateFee(number, ACCEPT_FEE_UNDER1M);
+    const { fee: processFeeUnder1m, formulaArr: formula2 } = this.calculateFee(number, PROCESS_FEE_UNDER1M);
+    const { fee: chargeFeeOver1m, formulaArr: formula3 } = this.calculateFee(number, DISPUTED_FEE_OVER1M);
     this.setState({
-      username: e.target.value
+      number,
+      acceptFeeUnder1m,
+      processFeeUnder1m,
+      chargeFeeOver1m,
+      formula: {
+        acceptFeeUnder1m: formula1,
+        processFeeUnder1m: formula2,
+        chargeFeeOver1m: formula3,
+      }
     });
   }
 
+  onSelect = (value) => {
+    this.setState({
+      tabKey: value,
+    });
+  }
+
+  calculateFee = (_amount, { model, overFlowRate }) => {
+    let fee = 0;
+    const amount = parseFloat(_amount);
+    let whatsLeft = amount;
+    const formulaArr= [];
+    for (const item of model) {
+      const { roof, floor, rate, fixedFee } = item;
+      if (amount <= roof) {
+        const actualCharge = fixedFee || whatsLeft * rate;
+        fee += actualCharge;
+        if (whatsLeft !== amount - floor) {
+          console.error('我这么数字对不上，你那边肯定有问题');
+        }
+        formulaArr.push({
+          ...item,
+          roof: amount,
+          actualCharge,
+        });
+        whatsLeft = 0;
+        break;
+      } 
+      const actualCharge = fixedFee || (roof - floor) * rate;
+      fee += actualCharge;
+      formulaArr.push({
+        ...item,
+        actualCharge,
+      });
+      whatsLeft = whatsLeft - (roof - floor);
+      if (whatsLeft !== amount - roof) {
+        console.error('我这么数字对不上，你那边肯定有问题');
+      }
+    }
+    if (whatsLeft > 0 && overFlowRate) {
+      const overFlowBar = model[model.length - 1].roof;
+      const actualCharge = whatsLeft * overFlowRate;
+      fee += actualCharge;
+      formulaArr.push({
+        floor: overFlowBar,
+        roof: overFlowBar + whatsLeft,
+        rate: overFlowRate,
+        actualCharge,
+      });
+    }
+    return {
+      fee,
+      formulaArr,
+    };
+  }
+
   render() {
+    const { acceptFeeUnder1m, processFeeUnder1m, chargeFeeOver1m, number, formula } = this.state;
+
+    const mapFunc = (item, index) => {
+      const { floor, roof, rate, actualCharge, fixedFee } = item;
+      return (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip key={item} id="tooltip" >
+              <div className="customTooltip">
+                <p>{floor}元 ~ {roof}元:</p>
+                {
+                  fixedFee ?
+                    fixedFee
+                    :
+                    `${roof - floor} x ${(rate * 100).toFixed(2)}%`
+                }
+              </div>
+            </Tooltip>
+          }
+          key={`${item}-${index}`}
+        >
+          <p className="customParagraph">
+            {index > 0 ? '+ ' : null}
+            {actualCharge}&nbsp;
+          </p>
+        </OverlayTrigger>
+      );
+    };
+
     return (
-      <div>
-        <h2>Login</h2>
-        <input onChange={this.handleChange} type="text" value={this.state.username} />
-        <button onClick={this.handleLogin}>Log In</button>
-      </div>
+      <Grid>
+        <Row className="customRow">
+          <Col xsOffset={1} xs={10} >
+            <h2>输入争议金额</h2>
+            <FormControl type="text" value={this.state.number} onChange={this.handleChange} />
+            {/* <br/><Button onClick={this.handleLogin}>计算</Button> */}
+          </Col>
+          <Col xsOffset={1} xs={10} className="resultArea">
+            <Tabs activeKey={this.state.tabKey} onSelect={this.onSelect} id="test">
+              <Tab title="标的额小于100万" eventKey={1} >
+                <Jumbotron className="resultArea">
+                  {
+                    number ?
+                      <Row>
+                        <Col xs={6}>
+                          <div>
+                            <h2>案件受理费</h2>
+                            <h3>{acceptFeeUnder1m}元</h3>
+                            <div>{formula.acceptFeeUnder1m.map(mapFunc)}</div>
+                          </div>
+                        </Col>
+                        <Col xs={6}>
+                          <div>
+                            <h2>案件处理费</h2>
+                            <h3>{processFeeUnder1m}元</h3>
+                            <div>{formula.processFeeUnder1m.map(mapFunc)}</div>
+                          </div>
+                        </Col>
+                      </Row>
+                      :
+                      <p>请输入金额</p>
+                  }
+                </Jumbotron>
+              </Tab>
+              <Tab title="标的额大于100万" eventKey={2} >
+                <Jumbotron className="resultArea">
+                  {
+                    number ?
+                      <div>
+                        <h2>仲裁收费</h2>
+                        <h3>{chargeFeeOver1m}元</h3>
+                        <div>{formula.chargeFeeOver1m.map(mapFunc)}</div>
+                      </div>
+                      :
+                      <p>请输入金额</p>
+                  }
+                </Jumbotron>
+              </Tab>
+            </Tabs>
+          </Col>
+        </Row>
+      </Grid>
     );
   }
 }

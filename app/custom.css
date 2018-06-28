@@ -1,0 +1,13 @@
+.customRow {
+    margin-top: 10vh;
+}
+.resultArea {
+    margin-top: 20px;
+}
+.customParagraph {
+    display: inline-block;
+}
+.customTooltip {
+    font-size: 17px;
+    padding: 10px;
+}
