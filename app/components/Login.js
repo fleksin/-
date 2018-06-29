@@ -183,7 +183,7 @@ export default class Login extends Component {
         });
         whatsLeft = 0;
         break;
-      } 
+      }
       const actualCharge = fixedFee || (roof - floor) * rate;
       fee += actualCharge;
       formulaArr.push({
@@ -237,7 +237,7 @@ export default class Login extends Component {
         >
           <p className="customParagraph">
             {index > 0 ? '+ ' : null}
-            {actualCharge}&nbsp;
+            {actualCharge.toFixed(2)}&nbsp;
           </p>
         </OverlayTrigger>
       );
@@ -261,14 +261,14 @@ export default class Login extends Component {
                         <Col xs={6}>
                           <div>
                             <h2>案件受理费</h2>
-                            <h3>{acceptFeeUnder1m}元</h3>
+                            <h3>{acceptFeeUnder1m.toFixed(2)}元</h3>
                             <div>{formula.acceptFeeUnder1m.map(mapFunc)}</div>
                           </div>
                         </Col>
                         <Col xs={6}>
                           <div>
                             <h2>案件处理费</h2>
-                            <h3>{processFeeUnder1m}元</h3>
+                            <h3>{processFeeUnder1m.toFixed(2)}元</h3>
                             <div>{formula.processFeeUnder1m.map(mapFunc)}</div>
                           </div>
                         </Col>
@@ -284,7 +284,7 @@ export default class Login extends Component {
                     number ?
                       <div>
                         <h2>仲裁收费</h2>
-                        <h3>{chargeFeeOver1m}元</h3>
+                        <h3>{chargeFeeOver1m.toFixed(2)}元</h3>
                         <div>{formula.chargeFeeOver1m.map(mapFunc)}</div>
                       </div>
                       :
