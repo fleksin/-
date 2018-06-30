@@ -243,6 +243,8 @@ export default class Login extends Component {
       );
     };
 
+    const sum = (acceptFeeUnder1m+processFeeUnder1m).toFixed(2);
+
     return (
       <Grid>
         <Row className="customRow">
@@ -271,6 +273,12 @@ export default class Login extends Component {
                             <h3>{processFeeUnder1m.toFixed(2)}元</h3>
                             <div>{formula.processFeeUnder1m.map(mapFunc)}</div>
                           </div>
+                        </Col>
+                        <Col xs={12}>
+                          <h3>合计: {sum} </h3>
+                          <h4>
+                            案件受理费 {(acceptFeeUnder1m * 100 / sum).toFixed(2)}%  案件处理费 {(processFeeUnder1m * 100 / sum).toFixed(2)}%
+                          </h4>
                         </Col>
                       </Row>
                       :
