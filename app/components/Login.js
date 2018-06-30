@@ -246,12 +246,12 @@ export default class Login extends Component {
     return (
       <Grid>
         <Row className="customRow">
-          <Col xsOffset={1} xs={10} >
+          <Col xs={12} >
             <h2>输入争议金额</h2>
             <FormControl type="text" value={this.state.number} onChange={this.handleChange} />
             {/* <br/><Button onClick={this.handleLogin}>计算</Button> */}
           </Col>
-          <Col xsOffset={1} xs={10} className="resultArea">
+          <Col xs={12} className="resultArea">
             <Tabs activeKey={this.state.tabKey} onSelect={this.onSelect} id="test">
               <Tab title="标的额小于100万" eventKey={1} >
                 <Jumbotron className="resultArea">
