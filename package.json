@@ -56,7 +56,7 @@
     "pack:linux": "run-s private:clean private:compile private:build:linux",
     "private:build:all": "electron-builder -mwl",
     "private:build:mac": "electron-builder --mac",
-    "private:build:win": "electron-builder --win",
+    "private:build:win": "electron-builder --win --ia32",
     "private:build:linux": "electron-builder --linux",
     "private:watch": "npm run private:compile -- --source-maps true --watch --skip-initial-build",
     "private:serve": "babel-node scripts/serve.js",
