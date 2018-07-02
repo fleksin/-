@@ -1,11 +1,11 @@
 {
-  "name": "electron-react-redux-boilerplate",
+  "name": "fee-calculator",
   "version": "0.0.0",
   "description": "electron-react-redux-boilerplate",
   "main": "init.js",
   "author": {
-    "name": "Jordan Schroter",
-    "email": "email@author.com"
+    "name": "Zhoufan He",
+    "email": "zhoufan.hzf@antfin.com"
   },
   "repository": "https://github.com/fleksin/-.git",
   "license": "MIT",
