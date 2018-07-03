@@ -294,7 +294,7 @@ export default class Login extends Component {
                           </div>
                         </Col>
                         <Col xs={12}>
-                          <h3>合计: {sum} </h3>
+                          <h3>合计: {sum} 元 </h3>
                           {/* <h4>
                             案件受理费 {acceptFeeRatio * 100}%  案件处理费 {processFeeRatio * 100}%
                           </h4> */}
@@ -320,10 +320,10 @@ export default class Login extends Component {
                         </Col>
                         <Col xs={12}>
                           <h4>
-                            案件受理费: {(acceptFeeRatio * chargeFeeOver1m).toFixed(2)}元 ({(acceptFeeRatio * 100).toFixed(2)}%)
+                            案件受理费: {(acceptFeeRatio * 100).toFixed(2)}% - {(acceptFeeRatio * chargeFeeOver1m).toFixed(2)}元
                           </h4>
                           <h4>
-                            案件处理费: {(processFeeRatio * chargeFeeOver1m).toFixed(2)}元 ({(processFeeRatio * 100).toFixed(2)}%)
+                            案件处理费: {(processFeeRatio * 100).toFixed(2)}% - {(processFeeRatio * chargeFeeOver1m).toFixed(2)}元 
                           </h4>
                         </Col>
                       </Row>
