@@ -255,8 +255,8 @@ export default class Login extends Component {
     };
 
     const sum = (acceptFeeUnder1m+processFeeUnder1m).toFixed(2);
-    const acceptFeeRatio = (acceptFeeUnder1m / sum).toFixed(2);
-    const processFeeRatio = (processFeeUnder1m / sum).toFixed(2);
+    const acceptFeeRatio = (acceptFeeUnder1m / sum);
+    const processFeeRatio = (processFeeUnder1m / sum);
 
     return (
       <Grid>
