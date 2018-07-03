@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, Grid, Row, Col, Jumbotron, Tabs, Tab, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { FormControl, Grid, Row, Col, Jumbotron, Tabs, Tab, Tooltip, OverlayTrigger, Collapse } from 'react-bootstrap';
 
 const ACCEPT_FEE_UNDER1M = {
   name: 'ACCEPT_FEE_UNDER1M',
@@ -129,6 +129,9 @@ export default class Login extends Component {
     acceptFeeUnder1m: null,
     processFeeUnder1m: null,
     chargeFeeOver1m: null,
+    acceptFeeUnder1mOpen: false,
+    processFeeUnder1mOpen: false,
+    chargeFeeOver1mOpen: false,
     formula: {},
   };
 
@@ -212,6 +215,14 @@ export default class Login extends Component {
     };
   }
 
+  toggleCollapse(name) {
+    const { state } = this;
+    state[name] = !state[name];
+    this.setState({
+      ...state,
+    });
+  }
+
   render() {
     const { acceptFeeUnder1m, processFeeUnder1m, chargeFeeOver1m, number, formula } = this.state;
 
@@ -244,6 +255,8 @@ export default class Login extends Component {
     };
 
     const sum = (acceptFeeUnder1m+processFeeUnder1m).toFixed(2);
+    const acceptFeeRatio = (acceptFeeUnder1m / sum).toFixed(2);
+    const processFeeRatio = (processFeeUnder1m / sum).toFixed(2);
 
     return (
       <Grid>
@@ -264,21 +277,27 @@ export default class Login extends Component {
                           <div>
                             <h2>案件受理费</h2>
                             <h3>{acceptFeeUnder1m.toFixed(2)}元</h3>
-                            <div>{formula.acceptFeeUnder1m.map(mapFunc)}</div>
+                            <a onClick={this.toggleCollapse.bind(this, 'acceptFeeUnder1mOpen')}>显示公式</a>
+                            <Collapse in={this.state.acceptFeeUnder1mOpen}>
+                              <div>{formula.acceptFeeUnder1m.map(mapFunc)}</div>
+                            </Collapse>
                           </div>
                         </Col>
                         <Col xs={6}>
                           <div>
                             <h2>案件处理费</h2>
                             <h3>{processFeeUnder1m.toFixed(2)}元</h3>
-                            <div>{formula.processFeeUnder1m.map(mapFunc)}</div>
+                            <a onClick={this.toggleCollapse.bind(this, 'processFeeUnder1mOpen')}>显示公式</a>
+                            <Collapse in={this.state.processFeeUnder1mOpen}>
+                              <div>{formula.processFeeUnder1m.map(mapFunc)}</div>
+                            </Collapse>
                           </div>
                         </Col>
                         <Col xs={12}>
                           <h3>合计: {sum} </h3>
-                          <h4>
-                            案件受理费 {(acceptFeeUnder1m * 100 / sum).toFixed(2)}%  案件处理费 {(processFeeUnder1m * 100 / sum).toFixed(2)}%
-                          </h4>
+                          {/* <h4>
+                            案件受理费 {acceptFeeRatio * 100}%  案件处理费 {processFeeRatio * 100}%
+                          </h4> */}
                         </Col>
                       </Row>
                       :
@@ -290,11 +309,24 @@ export default class Login extends Component {
                 <Jumbotron className="resultArea">
                   {
                     number ?
-                      <div>
-                        <h2>仲裁收费</h2>
-                        <h3>{chargeFeeOver1m.toFixed(2)}元</h3>
-                        <div>{formula.chargeFeeOver1m.map(mapFunc)}</div>
-                      </div>
+                      <Row>
+                        <Col xs={12}>
+                          <h2>仲裁收费</h2>
+                          <h3>{chargeFeeOver1m.toFixed(2)}元</h3>
+                          <a onClick={this.toggleCollapse.bind(this, 'chargeFeeOver1mOpen')}>显示公式</a>
+                          <Collapse in={this.state.chargeFeeOver1mOpen}>
+                            <div>{formula.chargeFeeOver1m.map(mapFunc)}</div>
+                          </Collapse>
+                        </Col>
+                        <Col xs={12}>
+                          <h4>
+                            案件受理费: {(acceptFeeRatio * chargeFeeOver1m).toFixed(2)}元 ({(acceptFeeRatio * 100).toFixed(2)}%)
+                          </h4>
+                          <h4>
+                            案件处理费: {(processFeeRatio * chargeFeeOver1m).toFixed(2)}元 ({(processFeeRatio * 100).toFixed(2)}%)
+                          </h4>
+                        </Col>
+                      </Row>
                       :
                       <p>请输入金额</p>
                   }
